@@ -1,0 +1,208 @@
+// navkit v1 —— 主网关调用契约。
+//
+// 传输：独立端口 + 明文 h2c（内网），同时保留 HTTP REST 给浏览器使用。
+// 版本：每条 Catalog 快照带单调递增 revision 与 content_hash，网关据此判断过期与断点续推。
+syntax = "proto3";
+
+package dnui.navkit.v1;
+
+option go_package = "gonav/gen/navkit/v1;navkitv1";
+
+import "google/protobuf/timestamp.proto";
+
+// ---------------------------------------------------------------- 数据模型
+
+message Link {
+  string id = 1;
+  string name = 2;
+  string url = 3;
+  string icon = 4;
+  string desc = 5;
+  repeated string tags = 6;
+  bool pinned = 7;
+  string category_id = 8;
+  string category_name = 9;
+  string accent = 10;
+}
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string icon = 3;
+  string accent = 4;
+  string description = 5;
+  repeated Link links = 6;
+}
+
+message Site {
+  string title = 1;
+  string subtitle = 2;
+  string logo = 3;
+  string announcement = 4;
+  string footer = 5;
+}
+
+// CatalogMeta 是同步语义的核心：网关凭 revision 判断自己是否过期。
+message CatalogMeta {
+  uint64 revision = 1;
+  string content_hash = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  // 这份配置的来源：file（本地文件热更新）| gateway（网关下发）
+  string source = 4;
+  string config_path = 5;
+}
+
+message Catalog {
+  Site site = 1;
+  repeated Category categories = 2;
+  CatalogMeta meta = 3;
+}
+
+// 校验失败时逐条返回，不要只给一句笼统错误。
+message Violation {
+  string location = 1; // 例如 "分类 library 第 2 条链接"
+  string message = 2;
+}
+
+// ---------------------------------------------------------------- 服务
+
+service NavkitService {
+  // --- M1：已实现 ---
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc GetServerInfo(GetServerInfoRequest) returns (GetServerInfoResponse);
+  rpc GetCatalog(GetCatalogRequest) returns (GetCatalogResponse);
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse);
+  rpc Search(SearchRequest) returns (SearchResponse);
+
+  // --- M2：网关下发与订阅 ---
+  rpc PutCatalog(PutCatalogRequest) returns (PutCatalogResponse);
+  rpc PatchLink(PatchLinkRequest) returns (PatchLinkResponse);
+  rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+  rpc WatchCatalog(WatchCatalogRequest) returns (stream WatchCatalogResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  // ok | degraded（配置热更新失败时为 degraded，此时仍在使用上一版可用配置）
+  string status = 1;
+  uint64 revision = 2;
+  int32 link_count = 3;
+  int32 category_count = 4;
+  string last_error = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message GetServerInfoRequest {}
+
+message GetServerInfoResponse {
+  string version = 1;
+  string http_addr = 2;
+  string grpc_addr = 3;
+  string config_path = 4;
+  uint64 revision = 5;
+  google.protobuf.Timestamp started_at = 6;
+  // 能力声明：网关据此判断哪些方法已经可用，避免踩 Unimplemented
+  repeated string capabilities = 7;
+}
+
+message GetCatalogRequest {
+  // false 只返回分类骨架（不含入口），用于轻量拉取目录
+  bool include_links = 1;
+  // 与当前 revision 一致时，响应里 not_modified=true 且不带 catalog
+  uint64 known_revision = 2;
+  // 只取某个分类；为空表示全部
+  string category_id = 3;
+}
+
+message GetCatalogResponse {
+  Catalog catalog = 1;
+  bool not_modified = 2;
+}
+
+message ListCategoriesRequest {}
+
+message ListCategoriesResponse {
+  repeated Category categories = 1;
+  CatalogMeta meta = 2;
+}
+
+message SearchRequest {
+  string query = 1;
+  // 0 表示默认 20，上限 200
+  int32 limit = 2;
+  string category_id = 3;
+}
+
+message SearchMatch {
+  Link link = 1;
+  int32 score = 2;
+}
+
+message SearchResponse {
+  string query = 1;
+  repeated SearchMatch matches = 2;
+  uint64 revision = 3;
+}
+
+message PutCatalogRequest {
+  Site site = 1;
+  repeated Category categories = 2;
+  // 乐观并发：非 0 且与当前 revision 不一致时返回 ABORTED
+  uint64 expected_revision = 3;
+  // true 表示只校验不落盘（dry-run）
+  bool dry_run = 4;
+}
+
+message PutCatalogResponse {
+  uint64 revision = 1;
+  string content_hash = 2;
+  int32 link_count = 3;
+  int32 category_count = 4;
+}
+
+message PatchLinkRequest {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ACTION_UPSERT = 1;
+    ACTION_DELETE = 2;
+  }
+  Action action = 1;
+  string category_id = 2;
+  Link link = 3;
+}
+
+message PatchLinkResponse {
+  uint64 revision = 1;
+}
+
+message GetStatsRequest {
+  int32 top = 1; // 0 表示 20
+}
+
+message StatsEntry {
+  string id = 1;
+  string name = 2;
+  string url = 3;
+  int64 hits = 4;
+}
+
+message GetStatsResponse {
+  int64 total = 1;
+  repeated StatsEntry top = 2;
+}
+
+message WatchCatalogRequest {
+  // 0 表示只订阅后续变更；非 0 且落后时服务端会立刻补推当前快照
+  uint64 from_revision = 1;
+}
+
+message WatchCatalogResponse {
+  uint64 revision = 1;
+  string content_hash = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  // 变更时的完整快照，避免网关再发一次 GetCatalog
+  Catalog catalog = 4;
+  // 心跳时 catalog 为空，仅用于保活
+  bool heartbeat = 5;
+}

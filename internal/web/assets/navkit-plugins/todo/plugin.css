@@ -1,0 +1,52 @@
+:root {
+  --fg: #1c1c1e;
+  --muted: #6b6b70;
+  --rule: #e3dfd7;
+  --accent: #2f6f9f;
+  --surface: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  color: var(--fg);
+  background: transparent;
+}
+
+.todo { height: 100%; display: flex; flex-direction: column; gap: 6px; padding: 8px; }
+.todo__title { margin: 0; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+
+.todo__add { display: flex; gap: 5px; }
+.todo__add input {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+.todo__add input:focus { outline: none; border-color: var(--accent); }
+.todo__add button {
+  width: 28px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.todo__list { flex: 1; overflow-y: auto; margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; align-content: start; }
+.todo__item { display: flex; align-items: center; gap: 7px; padding: 3px 5px; border-radius: 6px; }
+.todo__item:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.todo__item input { accent-color: var(--accent); }
+.todo__item span { flex: 1; min-width: 0; word-break: break-word; }
+.todo__item.is-done span { color: var(--muted); text-decoration: line-through; }
+.todo__del { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; }
+.todo__del:hover { color: #c0483c; }
+.todo__empty { margin: 0; color: var(--muted); font-size: 12px; }

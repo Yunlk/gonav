@@ -1,0 +1,50 @@
+{{define "content"}}
+<section class="hero hero--compact">
+  <div class="hero__body">
+    <p class="eyebrow">站内检索</p>
+    <h1 class="hero__title">在 {{.TotalLink}} 个入口中查找</h1>
+    {{template "searchform" .}}
+  </div>
+</section>
+
+{{if .Notice}}
+<div class="notice" role="note">{{icon "bell"}}<span>{{.Notice}}</span></div>
+{{end}}
+
+<section class="results">
+  <header class="results__head">
+    <h2>“{{.Query}}”</h2>
+    <p class="results__count">命中 <strong>{{len .Results}}</strong> 条</p>
+    <a class="link-btn" href="/">← 返回导航</a>
+  </header>
+
+  {{if .Results}}
+  <ul class="result-list">
+    {{range $i, $m := .Results}}
+    <li class="result" data-accent="{{$m.Link.Accent}}">
+      <span class="result__num">{{num2 $i}}</span>
+      <a class="result__hit" href="/go/{{$m.Link.ID}}" data-link="{{$m.Link.ID}}" data-name="{{$m.Link.Name}}" data-accent="{{$m.Link.Accent}}" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon">{{icon $m.Link.Icon}}</span>
+        <span class="link__text">
+          <span class="link-name">
+            <span class="name-text">{{highlight $m.Link.Name $.Query}}</span>
+            <span class="tag tag--cat">{{$m.Link.CategoryName}}</span>
+            {{if $m.Link.Tags}}{{range $m.Link.Tags}}<span class="tag">{{.}}</span>{{end}}{{end}}
+          </span>
+          <span class="link-desc">{{highlight (or $m.Link.Desc $m.Link.Host) $.Query}}</span>
+        </span>
+        <span class="link__host">{{$m.Link.Host}}</span>
+      </a>
+      <button class="fav-btn" type="button" data-fav="{{$m.Link.ID}}" aria-pressed="false"
+              aria-label="收藏 {{$m.Link.Name}}" title="加入 / 移出我的收藏">{{icon "star"}}</button>
+    </li>
+    {{end}}
+  </ul>
+  {{else}}
+  <p class="empty">
+    <strong>没有找到与“{{.Query}}”匹配的入口</strong>
+    <span>换个更短的关键词，或用上面的下拉框直接走百度 / 知网。</span>
+  </p>
+  {{end}}
+</section>
+{{end}}

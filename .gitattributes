@@ -1,0 +1,16 @@
+# 默认按文本处理并统一用 LF 检出（跨 Windows/Linux 协作不产生整文件差异）
+* text=auto eol=lf
+
+# 二进制：不要做任何换行/编码转换
+*.png binary
+*.jpg binary
+*.woff2 binary
+*.exe binary
+
+# run.ps1 必须原样保存：Windows PowerShell 5.1 会按本地代码页解码无 BOM 的脚本，
+# 所以这里显式关掉一切转换，确保 UTF-8 BOM 不被洗掉。
+run.ps1 -text
+
+# 生成物：GitHub 语言统计里不算进去
+gen/** linguist-generated=true
+internal/web/assets/navkit/assets/** linguist-generated=true

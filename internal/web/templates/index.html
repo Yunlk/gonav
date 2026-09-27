@@ -1,0 +1,139 @@
+{{define "content"}}
+<section class="hero">
+  <div class="hero__body">
+    <p class="eyebrow">大连东软信息学院</p>
+    <h1 class="hero__title">校内导航</h1>
+    <p class="hero__sub">{{.Site.Subtitle}}</p>
+
+    {{template "searchform" .}}
+
+    <div class="examples">
+      <span class="examples__label">示例：</span>
+      <button class="example" type="button" data-example="jwxt">jwxt</button>
+      <button class="example" type="button" data-example="图书馆">图书馆</button>
+      <button class="example" type="button" data-example="选课">选课</button>
+      <button class="example" type="button" data-example="知网">知网</button>
+      <button class="example" type="button" data-example="实验">实验</button>
+      <span class="examples__note">支持中文、全拼与首字母</span>
+    </div>
+
+    <div class="chips" data-chips>
+      <button class="chip is-active" type="button" data-filter="all">全部</button>
+      {{range .Categories}}
+      <button class="chip" type="button" data-filter="{{.ID}}" data-accent="{{.Accent}}">{{.Name}}</button>
+      {{end}}
+    </div>
+
+    <p class="hint-line">
+      <span class="kbd">/</span> 聚焦搜索
+      <span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> 站内检索
+      <span class="kbd">T</span> 切换主题
+      <span class="kbd">Esc</span> 清空
+    </p>
+  </div>
+</section>
+
+{{if .Site.Announcement}}
+<div class="notice" role="note">{{icon "bell"}}<span>{{.Site.Announcement}}</span></div>
+{{end}}
+
+<section class="strips">
+  {{if .Pinned}}
+  <article class="strip">
+    <header class="strip__head">
+      <h2>常用推荐</h2>
+      <p>信息中心精选高频入口</p>
+    </header>
+    <div class="strip__body">
+      {{range $i, $l := .Pinned}}
+      <a class="mini" href="/go/{{$l.ID}}" data-link="{{$l.ID}}" data-name="{{$l.Name}}" data-accent="{{$l.Accent}}" target="_blank" rel="noopener noreferrer">
+        <span class="mini__num">{{num2 $i}}</span>
+        <span class="mini__icon">{{icon $l.Icon}}</span>
+        <span class="mini__text">
+          <strong>{{$l.Name}}</strong>
+          <small>{{if $l.Desc}}{{$l.Desc}}{{else}}{{$l.Host}}{{end}}</small>
+        </span>
+      </a>
+      {{end}}
+    </div>
+  </article>
+  {{end}}
+
+  <article class="strip" data-fav-strip hidden>
+    <header class="strip__head">
+      <h2>我的收藏</h2>
+      <p>点入口右侧星标加入，拖拽手柄排序，保存在本机</p>
+      <button class="link-btn" type="button" data-fav-clear>清空</button>
+    </header>
+    <div class="strip__body" data-fav-body></div>
+  </article>
+
+  <article class="strip" data-recent hidden>
+    <header class="strip__head">
+      <h2>最近使用</h2>
+      <p>本机记录</p>
+      <button class="link-btn" type="button" data-recent-clear>清空</button>
+    </header>
+    <div class="strip__body" data-recent-body></div>
+  </article>
+
+  {{if .Top}}
+  <article class="strip">
+    <header class="strip__head">
+      <h2>热门入口</h2>
+      <p>按累计点击量排序</p>
+    </header>
+    <div class="strip__body">
+      {{range $i, $t := .Top}}
+      <a class="mini" href="/go/{{$t.Link.ID}}" data-link="{{$t.Link.ID}}" data-name="{{$t.Link.Name}}" data-accent="{{$t.Link.Accent}}" target="_blank" rel="noopener noreferrer">
+        <span class="mini__num">{{num2 $i}}</span>
+        <span class="mini__icon">{{icon $t.Link.Icon}}</span>
+        <span class="mini__text">
+          <strong>{{$t.Link.Name}}</strong>
+          <small>{{$t.Hits}} 次访问</small>
+        </span>
+      </a>
+      {{end}}
+    </div>
+  </article>
+  {{end}}
+</section>
+
+<section class="grid" data-grid>
+  {{range $i, $c := .Categories}}
+  <article class="cat" id="cat-{{$c.ID}}" data-card data-category="{{$c.ID}}" data-accent="{{$c.Accent}}">
+    <header class="cat__head">
+      <span class="cat__name">{{$c.Name}}</span>
+      <span class="cat__count">{{len $c.Links}}</span>
+      <p class="cat__desc">{{$c.Description}}</p>
+    </header>
+
+    <ul class="links">
+      {{range $c.Links}}
+      <li class="link-item" data-item data-search="{{.Name}} {{.Desc}} {{join .Tags " "}} {{.Host}} {{.Py}}">
+        <a class="link" href="/go/{{.ID}}" data-link="{{.ID}}" data-name="{{.Name}}" data-accent="{{.Accent}}" target="_blank" rel="noopener noreferrer">
+          <span class="link__icon">{{icon .Icon}}</span>
+          <span class="link__text">
+            <span class="link-name">
+              <span class="name-text">{{.Name}}</span>
+              {{if .Pinned}}<span class="tag tag--pin">推荐</span>{{end}}
+              {{if .Tags}}{{range .Tags}}<span class="tag">{{.}}</span>{{end}}{{end}}
+            </span>
+            <span class="link-desc">{{if .Desc}}{{.Desc}}{{else}}{{.Host}}{{end}}</span>
+          </span>
+          <span class="link__host">{{.Host}}</span>
+        </a>
+        <button class="fav-btn" type="button" data-fav="{{.ID}}" aria-pressed="false"
+                aria-label="收藏 {{.Name}}" title="加入 / 移出我的收藏">{{icon "star"}}</button>
+      </li>
+      {{end}}
+    </ul>
+  </article>
+  {{end}}
+
+  <p class="empty" data-empty hidden>
+    <strong>没有匹配的入口</strong>
+    <span>换个关键词，或点上方「全部」查看所有分类。</span>
+  </p>
+</section>
+{{end}}

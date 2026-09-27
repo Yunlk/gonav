@@ -1,0 +1,13 @@
+# 构建产物
+gonav
+gonav.exe
+
+# 运行时数据（点击统计等）
+data/
+
+# 拼音数据源（由 tools/genpinyin 生成 table_gen.go 后即可删除）
+tools/pinyin.txt
+
+# navkit 前端依赖（产物已提交到 internal/web/assets/navkit）
+navkit/node_modules/
+navkit/dist/

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="DNUI 校内导航">
+  <rect width="64" height="64" fill="#0B0B0B"/>
+  <g stroke="#D8FF00" stroke-width="9" stroke-linecap="square">
+    <path d="M32 6v52M6 32h52M13.6 13.6l36.8 36.8M50.4 13.6 13.6 50.4"/>
+  </g>
+  <rect x="26" y="26" width="12" height="12" fill="#FF3B00"/>
+</svg>

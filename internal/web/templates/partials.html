@@ -1,0 +1,18 @@
+{{define "searchform"}}
+<form class="search" method="get" action="/search" role="search" data-search-form>
+  <div class="search__engine">
+    <select name="engine" data-engine aria-label="选择搜索引擎">
+      {{$current := .Engine.ID}}
+      {{range .Engines}}
+      <option value="{{.ID}}" data-placeholder="{{.Placeholder}}"{{if eq .ID $current}} selected{{end}}>{{.Name}}</option>
+      {{end}}
+    </select>
+  </div>
+
+  <input class="search__input" type="search" name="q" value="{{.Query}}"
+         placeholder="{{.Engine.Placeholder}}" aria-label="搜索关键词"
+         autocomplete="off" spellcheck="false" data-search-input>
+
+  <button class="btn btn--primary" type="submit">搜索</button>
+</form>
+{{end}}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>待办</title>
+    <link rel="stylesheet" href="plugin.css" />
+  </head>
+  <body>
+    <div class="todo">
+      <h1 class="todo__title" id="title">今天要做的事</h1>
+      <form class="todo__add" id="form">
+        <input id="input" type="text" placeholder="加一条，回车保存" maxlength="80" autocomplete="off" />
+        <button type="submit">＋</button>
+      </form>
+      <ul class="todo__list" id="list"></ul>
+      <p class="todo__empty" id="empty">还没有待办</p>
+    </div>
+    <script src="plugin.js"></script>
+  </body>
+</html>

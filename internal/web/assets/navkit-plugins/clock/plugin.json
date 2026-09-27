@@ -1,0 +1,16 @@
+{
+  "id": "clock",
+  "name": "时钟",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "kind": "widget",
+  "description": "本机时间与日期，配色跟随当前主题",
+  "author": "navkit",
+  "entry": "index.html",
+  "permissions": ["theme:read"],
+  "settings": [
+    { "key": "showSeconds", "label": "显示秒", "type": "boolean", "default": true },
+    { "key": "label", "label": "顶部标签", "type": "string", "default": "" }
+  ],
+  "defaultSize": { "w": 1, "h": 1 }
+}

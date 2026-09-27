@@ -1,0 +1,67 @@
+{{define "layout"}}<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{{if .IsSearch}}{{if .Query}}{{.Query}} · 站内搜索{{else}}站内搜索{{end}} · {{.Site.Title}}{{else}}{{.Site.Title}}{{end}}</title>
+  <meta name="description" content="{{.Site.Subtitle}}">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="preload" href="/static/fonts/archivo-600.woff2" as="font" type="font/woff2" crossorigin>
+  <script src="/static/js/theme.js"></script>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="topbar" id="top">
+    <a class="wordmark" href="/">
+      <b>{{.Site.Logo}}</b>
+      <em>{{.Site.Title}}</em>
+    </a>
+
+    <nav class="nav" aria-label="分类导航">
+      {{range $i, $c := .Categories}}
+      <a href="#cat-{{$c.ID}}">{{$c.Name}}</a>
+      {{end}}
+    </nav>
+
+    <p class="status">
+      <b>{{.TotalLink}}</b> 个入口 · <b>{{.TotalCat}}</b> 类 ·
+      <time data-clock>--:--:--</time>
+    </p>
+
+    <button class="icon-btn" type="button" data-theme-toggle aria-label="切换深色 / 浅色" title="切换深色 / 浅色（快捷键 T）">
+      <span class="icon-sun">{{icon "sun"}}</span>
+      <span class="icon-moon">{{icon "moon"}}</span>
+    </button>
+  </header>
+
+  {{if .ConfigErr}}
+  <div class="alert" role="alert">
+    {{icon "bell"}}
+    <span>配置热更新失败，当前仍在使用上一版可用配置：{{.ConfigErr}}</span>
+  </div>
+  {{end}}
+
+  <main class="page" id="main">
+    {{template "content" .}}
+  </main>
+
+  <footer class="footer">
+    <div class="footer__body">
+      <p class="footer__claim">{{.Site.Footer}}</p>
+      <p class="footer__meta">
+        v{{.Version}} · 配置 {{.ConfigPath}} · 更新于 {{.ConfigTime.Format "2006-01-02 15:04:05"}} · 累计点击 {{.TotalHits}}
+      </p>
+      <p class="footer__meta">
+        <a href="#top">回到顶部</a> · <a href="/navkit/">navkit 自定义导航（实验）</a> ·
+        数据保存在本机浏览器与服务端，不含第三方追踪
+      </p>
+    </div>
+  </footer>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script src="/static/js/app.js" defer></script>
+</body>
+</html>{{end}}

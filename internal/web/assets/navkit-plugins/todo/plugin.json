@@ -1,0 +1,13 @@
+{
+  "id": "todo",
+  "name": "待办",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "kind": "widget",
+  "description": "勾选式待办清单，数据存在插件自己的存储里（宿主按 pluginId 隔离）",
+  "author": "navkit",
+  "entry": "index.html",
+  "permissions": ["storage", "theme:read"],
+  "settings": [{ "key": "title", "label": "清单标题", "type": "string", "default": "今天要做的事" }],
+  "defaultSize": { "w": 2, "h": 2 }
+}
